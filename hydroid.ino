@@ -5,7 +5,7 @@ https://github.com/Cryptostrike/Hydroid/
 Pinouts:
 reservoirPin - Water level sensor to see if reservoir is empty
 moisturePin - Soil moisture sensor
-pumpPin - Pumps water from reservoir
+pumpPin - Pumps water from reservoir to soil
 
 Variables:
 soilDry - This keeps track of whether the soil is below the desired moisture, 0 = it isn't dry, 1 = it's dry and requires water
@@ -37,10 +37,11 @@ void setup(){
 }
 
 
+// Measures soil moisture and uses soilDry to track if soil is dry
 int moistureSensor(int desired){
   int moisture = analogRead(moisturePin);
   
-  if (moisture < desired){
+  if (moisture > desired){
     soilDry = 0;
   } 
   else {
@@ -49,7 +50,7 @@ int moistureSensor(int desired){
   return soilDry;
 }
 
-
+// Checks if the reservoir is empty
 int reservoirCheck(){
   int reservoir = digitalRead(reservoirPin);
   
@@ -64,8 +65,16 @@ int reservoirCheck(){
 
 
 void loop(){
-  /* debugging
-  ------------------------
+  
+  /* Debugging loop
+  Outputs serial output like:
+  
+  Raw: 1023  Soil dry? 0
+  Reservoir empty? 1
+  
+  Where 'raw' is the raw soil moisture.
+  ------------------------*/
+  
   Serial.print("Raw: ");
   Serial.print(analogRead(moisturePin));
   Serial.print("  ");
@@ -76,12 +85,15 @@ void loop(){
   reservoirCheck();
   Serial.println(reservoirEmpty);
   Serial.print("  ");
-  ---------------------------
-  */
   
-  reservoirCheck();
-  moistureSensor(1200);
+  //---------------------------
   
+  
+  reservoirCheck(); // Checks if the reservoir is empty
+  moistureSensor(1200); // Measures the soil moisture: moistureSensor(value from 0 - 1023 which is classed as dry);
+  
+  
+  // Soil is dry so a pump cycle activates, there are no errors to report
   if ((soilDry == 1) && (reservoirEmpty == 0)){
    Serial.println("* Soil is dry, activating pumping");
    digitalWrite(pumpPin, HIGH);
@@ -91,11 +103,18 @@ void loop(){
    digitalWrite(pumpPin, LOW);
    digitalWrite(redLED, LOW);
    Serial.println("15 second pump cycle complete, rechecking soil moisture");
+   Serial.println("  ");
+   Serial.println("---------------");
+   Serial.println("  ");
   }
   
   
+  // Soil is not dry so nothing happens, there are no errors to report
   if ((soilDry == 0) && (reservoirEmpty == 0)){
     Serial.println("+ Soil moisture: Ok | Reservoir level: Ok");
+    Serial.println("  ");
+    Serial.println("---------------");
+    Serial.println("  ");
     digitalWrite(greenLED, HIGH);
     //delay(15000);
     delay(5000);
@@ -103,8 +122,14 @@ void loop(){
   }
   
   
+  // The soil is dry but the reservoir is empty so pumping cannot occur, error is reported
   if ((soilDry == 1) && (reservoirEmpty == 1)){
     Serial.println("! WARNING: Soil is dry and reservoir is EMPTY");
+    Serial.println("  ");
+    Serial.println("---------------");
+    Serial.println("  ");
+    
+    // LED sequence for error report
     digitalWrite(greenLED, HIGH);
     delay(500);
     digitalWrite(greenLED, LOW);
@@ -114,8 +139,14 @@ void loop(){
   }
   
   
+   // The soil is not dru but the reservoir is empty so pumping cannot occur once the soil is dry, error is reported
    if ((soilDry == 0) && (reservoirEmpty == 1)){
     Serial.println("! WARNING: Reservoir is EMPTY");
+    Serial.println("  ");
+    Serial.println("---------------");
+    Serial.println("  ");
+        
+    // LED sequence for error report
     digitalWrite(greenLED, HIGH);
     delay(500);
     digitalWrite(greenLED, LOW);
