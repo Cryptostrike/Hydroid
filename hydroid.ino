@@ -131,7 +131,7 @@ void loop(){
    
    digitalWrite(pumpPin, LOW);
    digitalWrite(greenLED, LOW);
-   Serial.print(pumpingDuration);
+   Serial.print((pumpingDuration/1000)); // Converted from ms to s
    Serial.println(" second pump cycle complete, rechecking soil moisture");
    Serial.println("  ");
    Serial.println("---------------");
