@@ -2,9 +2,10 @@
 // https://github.com/Cryptostrike/Hydroid/
 
 /******************** USER DEFINED PARAMETERS (CHANGE THESE) ***************************
-* dryThreshold - An integer between 0 and 1023, 0 being 100% wet and 1023 being 0% wet.*
+* dryThreshold - An integer between 0 and 1023, 0 being 100% wet and 1023 being 0% dry.*
 * pumpingDuration - Time that the pump will pump each cycle in ms. 1000 ms = 1 s.      *
 ****************************************************************************************/
+
 int dryThreshold = 600;
 int pumpingDuration = 5000;
 
@@ -13,6 +14,7 @@ int pumpingDuration = 5000;
  * reservoirPin - Water level sensor to see if reservoir is empty
  * moisturePin - Soil moisture sensor
  * pumpPin - Pumps water from reservoir to soil */
+ 
 int moisturePin = 0;
 int pumpPin = 2;
 int redLED = 3;
@@ -23,10 +25,12 @@ int reservoirPin = 5;
 /* Variables:
  * soilDry - This keeps track of whether the soil is below the desired moisture, 0 = it isn't dry, 1 = it's dry and requires water
  * reservoirEmpty - This checks whether ther is enough water in the reservoir to pump, 0 = there is enough, 1 = it's empty */
+
 int soilDry;
 int reservoirEmpty;
 
 
+// Setup pin modes
 void setup(){
   pinMode(reservoirPin, INPUT);
   pinMode(pumpPin, OUTPUT);
@@ -39,6 +43,7 @@ void setup(){
 /* Functions:
  * moistureSensor(desired); - Measures soil moisture, evaluates against desired moisture and outputs soilDry to say if the plant requires water 
  * reservoirCheck(); - Checks if the reservoir is filled enough to pump, if there is not enough water it outputs reservoirEmpty = 1 which stops the pump */
+
 int moistureSensor(int desired){
   int moisture = analogRead(moisturePin);
   
