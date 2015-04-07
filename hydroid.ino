@@ -1,29 +1,28 @@
-/* 
-Plant monitoring and watering system - Cryptostrike (MIT License)
-https://github.com/Cryptostrike/Hydroid/
+// Hydroid - Plant monitoring and watering system - Cryptostrike (MIT License)
+// https://github.com/Cryptostrike/Hydroid/
 
-Pinouts:
-reservoirPin - Water level sensor to see if reservoir is empty
-moisturePin - Soil moisture sensor
-pumpPin - Pumps water from reservoir to soil
+/******************** USER DEFINED PARAMETERS (CHANGE THESE) ***************************
+* dryThreshold - An integer between 0 and 1023, 0 being 100% wet and 1023 being 0% wet.*
+* pumpingDuration - Time that the pump will pump each cycle in ms. 1000 ms = 1 s.      *
+****************************************************************************************/
+int dryThreshold = 600;
+int pumpingDuration = 5000;
 
-Variables:
-soilDry - This keeps track of whether the soil is below the desired moisture, 0 = it isn't dry, 1 = it's dry and requires water
-reservoirEmpty - This checks whether ther is enough water in the reservoir to pump, 0 = there is enough, 1 = it's empty
 
-Functions:
-moistureSensor(desired); - Measures soil moisture, evaluates against desired moisture and outputs soilDry to say if the plant requires water 
-reservoirCheck(); - Checks if the reservoir is filled enough to pump, if there is not enough water it outputs reservoirEmpty = 1 which stops the pump
-*/
-
-// Pins
+/* Pinouts:
+ * reservoirPin - Water level sensor to see if reservoir is empty
+ * moisturePin - Soil moisture sensor
+ * pumpPin - Pumps water from reservoir to soil */
 int moisturePin = 0;
 int pumpPin = 2;
 int redLED = 3;
 int greenLED = 4;
 int reservoirPin = 5;
 
-// Variables
+
+/* Variables:
+ * soilDry - This keeps track of whether the soil is below the desired moisture, 0 = it isn't dry, 1 = it's dry and requires water
+ * reservoirEmpty - This checks whether ther is enough water in the reservoir to pump, 0 = there is enough, 1 = it's empty */
 int soilDry;
 int reservoirEmpty;
 
@@ -37,11 +36,13 @@ void setup(){
 }
 
 
-// Measures soil moisture and uses soilDry to track if soil is dry
+/* Functions:
+ * moistureSensor(desired); - Measures soil moisture, evaluates against desired moisture and outputs soilDry to say if the plant requires water 
+ * reservoirCheck(); - Checks if the reservoir is filled enough to pump, if there is not enough water it outputs reservoirEmpty = 1 which stops the pump */
 int moistureSensor(int desired){
   int moisture = analogRead(moisturePin);
   
-  if (moisture > desired){
+  if (moisture < desired){
     soilDry = 0;
   } 
   else {
@@ -50,7 +51,7 @@ int moistureSensor(int desired){
   return soilDry;
 }
 
-// Checks if the reservoir is empty
+
 int reservoirCheck(){
   int reservoir = digitalRead(reservoirPin);
   
@@ -62,6 +63,7 @@ int reservoirCheck(){
   }
   return reservoirEmpty;
 }
+
 
 
 void loop(){
@@ -79,7 +81,7 @@ void loop(){
   Serial.print(analogRead(moisturePin));
   Serial.print("  ");
   Serial.print("Soil dry? ");
-  moistureSensor(700);
+  moistureSensor(dryThreshold);
   Serial.println(soilDry);
   Serial.print("Reservoir empty? ");
   reservoirCheck();
@@ -90,7 +92,7 @@ void loop(){
   
   
   reservoirCheck(); // Checks if the reservoir is empty
-  moistureSensor(1200); // Measures the soil moisture: moistureSensor(value from 0 - 1023 which is classed as dry);
+  moistureSensor(dryThreshold); // Measures the soil moisture: moistureSensor(value from 0 - 1023 which is classed as dry);
   
   
   // Soil is dry so a pump cycle activates, there are no errors to report
@@ -98,8 +100,9 @@ void loop(){
    Serial.println("* Soil is dry, activating pumping");
    digitalWrite(pumpPin, HIGH);
    digitalWrite(redLED, HIGH);
-   //delay(15000);
-   delay(5000);
+   
+   delay(pumpingDuration);
+   
    digitalWrite(pumpPin, LOW);
    digitalWrite(redLED, LOW);
    Serial.println("15 second pump cycle complete, rechecking soil moisture");
@@ -116,7 +119,6 @@ void loop(){
     Serial.println("---------------");
     Serial.println("  ");
     digitalWrite(greenLED, HIGH);
-    //delay(15000);
     delay(5000);
     digitalWrite(greenLED, LOW);
   }
