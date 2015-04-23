@@ -14,7 +14,7 @@
 
                                                                                         
 /******************** USER DEFINED PARAMETERS (CHANGE THESE) ****************************
-* dryThreshold - An integer between 0 and 1023, 0 being 100% wet and 1023 being 0% dry. *
+* dryThreshold - An integer between 0 and 1023, 0 being 100% wet and 1023 being 100% dry. *
 * pumpingDuration - Time that the pump will pump each cycle in ms. 1000 ms = 1 s.       *
 * monitoringPeriod - Time that hydroid will pause before rechecking the moisture again. *
 *****************************************************************************************/
